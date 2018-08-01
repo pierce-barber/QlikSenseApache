@@ -1,5 +1,6 @@
 # QlikSense
 
+The items given have been tested to allow one Apache Web Server to act as a Load Balancer AND Reverse Proxy to Qlik Sense traffic. This includes the Apache componements for  Sticky / Persistent Sessions for the User Session, HTTPS/SSL, WebSocket upgrades from HTTP(S) and SAML (ADFS tested)/Header and Windows Authentication. 
 
 Prerequisites:
 
@@ -25,4 +26,129 @@ Example Environment:
   - Apache 2.4 (httpd-2.4.33-o110h-x64-vc14-r2)
   - HTTPS / SSL - SHA256 with "Microsoft Enhanced RSA and AES Cryptographic Provider" added Enabled / Active on Sense, ADFS and Apache.
 
-Note: This documentation is only to used to validate and test while using Apache as a Reverse Web Server and Load Balancer with HTTPS/SSL is enabled. This example is under the assumption there's an understanding of the environment and having the proper permissions to perform the actions shown. Accounts used are all Local Administrators and the servers are open, with nothing blocked and no other programs installed on them.​Read the entire documentation to verify access and understanding of all actions stated within prior to starting the install and configuration. Any other versions or configurations of any software may need other steps/options/settings/etc ... that are not documented here. ​Use this at your own discretion as Qlik does NOT support Apache/OpenSSL/ADFS in their installation/configuration or use.
+Note: This documentation is only to used to validate and test while using Apache as a Reverse Web Server and Load Balancer with HTTPS/SSL is enabled. This example is under the assumption there's an understanding of the environment and having the proper permissions to perform the actions shown. Accounts used are all Local Administrators and the servers are open, with nothing blocked and no other programs installed on them. Any other versions or configurations of any software may need other steps/options/settings/etc ... that are not documented here. ​Use this at your own discretion as Qlik does NOT support Apache/OpenSSL/ADFS in their installation/configuration or use.
+
+--
+
+http-vhosts.conf
+
+# Virtual Hosts
+#
+# Required modules: mod_log_config
+# If you want to maintain multiple domains/hostnames on your
+# machine you can setup VirtualHost containers for them. Most configurations
+# use only name-based virtual hosts so the server doesn't need to worry about
+# IP addresses. This is indicated by the asterisks in the directives below.
+#
+# Please see the documentation at
+# <URL:http://httpd.apache.org/docs/2.4/vhosts/>
+# for further details before you try to setup virtual hosts.
+#
+# You may use the command line option '-S' to verify your virtual host
+# configuration.
+#
+# Qlik Sense Reverse Proxy configuration for header authentication
+#
+# Qlik Sense test Header configuration:
+# - Create a new Virtual Proxy with Header authentication using a Static User Directory. EX: QVUSER as the Header name
+# - Add the Reverse Proxy FQDN/Server Name and IP address to whitelist of virtual proxy
+#
+#Put the IP Address OR FQDN/Server Name of Qlik Sense Server as SENSE_SERVER_1 and SENSE_SERVER_2. EX: qlikserver1.domain.local
+#Put the IP Address OR FQDN/Server Name of Reverse Proxy as LOCAL_ADDR. EX: 172.16.16.102
+#Put the FQDN/Server Name of Reverse Proxy as APACHE_SERVER. EX: qlikserver3.domain.local
+#Put the Virtual Proxy prefix as VIRTUAL_PROXY - EX: header
+#Put the desired name for the Balancer configuration as BALANCER_NAME -EX: balancer
+
+Define SENSE_SERVER_1 qlikserver1.domain.local
+Define SENSE_SERVER_2 qlikserver2.domain.local
+Define APACHE_SERVER qlikserver3.domain.local
+Define LOCAL_ADDR 172.16.16.102
+Define VIRTUAL_PROXY header
+Define VIRTUAL_PROXY_1 adfsapache
+Define BALANCER_NAME balancer
+ 
+<VirtualHost *:443>
+
+    ServerAdmin name@qlik.com
+    DocumentRoot "${SRVROOT}/htdocs"
+    ServerName ${LOCAL_ADDR}:443
+    ServerAlias ${APACHE_SERVER}
+    
+    SSLProxyEngine on
+    SSLEngine on
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerName off
+    
+   #Location of the SSL certificate used for this virtual host in their .crt and .key file format
+    SSLCertificateFile  "${SRVROOT}/conf/ssl/QlikServer3Certificate.crt"
+    SSLCertificateKeyFile   "${SRVROOT}/conf/ssl/QlikServer3Certificate.key"
+ 
+    ProxyRequests Off
+    ProxyPreserveHost On
+    KeepAlive On
+ 
+    RewriteEngine On
+ 
+    # If it is a websocket request forward as websocket traffic
+    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+    RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+	RewriteRule ^/(.*)  balancer://wss-${BALANCER_NAME}/$1 [P,L]
+	
+    <Proxy *>
+         Require all granted
+    </Proxy>
+	
+	#Adding a cookie with the RouteID of a server to maintain Sticky Sessions.
+	
+	Header add Set-Cookie "ROUTEID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
+ 
+	#Balancer configuration and load balancing methods defined for SSL / HTTPS and WSS / WebSocket traffic
+	
+	<Proxy balancer://${BALANCER_NAME}>
+		BalancerMember "https://${SENSE_SERVER_1}:443" route=1
+		BalancerMember "https://${SENSE_SERVER_2}:443" route=2
+		ProxySet lbmethod=byrequests
+		ProxySet stickysession=ROUTEID
+	</Proxy>
+	
+	<Proxy balancer://wss-${BALANCER_NAME}>
+		BalancerMember "wss://${SENSE_SERVER_1}:443" route=1
+		BalancerMember "wss://${SENSE_SERVER_2}:443" route=2
+		ProxySet lbmethod=byrequests
+		ProxySet stickysession=ROUTEID
+	</Proxy>
+	
+	# 	Uncomment to open up all URLs from the Reverse Proxy / Load Balancer to Qlik Sense
+	
+	#	ProxyPass "/"  "balancer://${BALANCER_NAME}/" 
+	#	ProxyPassReverse "/"  "balancer://${BALANCER_NAME}/"
+	
+	#	Can point to certain Virtual Proxies instead of opening up the environment. EX: "/header" 
+	#	Note: If an ending slash is used, "/header/" "balancer://${BALANCER_NAME}/${VIRTUAL_PROXY}/" it needs to be in the URL when accessing through the browser 
+	#	EX: "https://qlikserver3.domain.local/header/ - will work / https://qlikserver3.domain.local/header - will not work"
+	
+		ProxyPass "/${VIRTUAL_PROXY}"  "balancer://${BALANCER_NAME}/${VIRTUAL_PROXY}" 
+		ProxyPassReverse "/${VIRTUAL_PROXY}"  "balancer://${BALANCER_NAME}/${VIRTUAL_PROXY}"
+		
+		ProxyPass "/${VIRTUAL_PROXY_1}"  "balancer://${BALANCER_NAME}/${VIRTUAL_PROXY_1}" 
+		ProxyPassReverse "/${VIRTUAL_PROXY_1}"  "balancer://${BALANCER_NAME}/${VIRTUAL_PROXY_1}"
+		
+	#	Balancer configuration page. EX: https://qlikserver3.domain.local/balancer-manager
+	
+	<Location "/balancer-manager">
+		SetHandler balancer-manager
+		Require host ${APACHE_SERVER}
+	</Location>
+	
+	#	Server status page. EX: https://qlikserver3.domain.local/server-status
+	
+	<Location /server-status>
+		SetHandler server-status
+		Require host ${APACHE_SERVER}
+	</Location>
+
+</Virtualhost>
+
+-- 
+
+httpd.conf can be used, but some modules may not be needed in your environment, please review it and disable any non-needed entries.
