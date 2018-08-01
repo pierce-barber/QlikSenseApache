@@ -58,7 +58,7 @@ Define BALANCER_NAME balancer
     SSLProxyCheckPeerCN off
     SSLProxyCheckPeerName off
     
-   #Location of the SSL certificate used for this virtual host in their .crt and .key file format
+    #Location of the SSL certificate used for this virtual host in their .crt and .key file format
     SSLCertificateFile  "${SRVROOT}/conf/ssl/QlikServer3Certificate.crt"
     SSLCertificateKeyFile   "${SRVROOT}/conf/ssl/QlikServer3Certificate.key"
  
