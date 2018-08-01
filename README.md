@@ -38,15 +38,15 @@ http-vhosts.conf
 #Put the Virtual Proxy prefix as VIRTUAL_PROXY - EX: header
 #Put the desired name for the Balancer configuration as BALANCER_NAME -EX: balancer
 
-Define SENSE_SERVER_1 qlikserver1.domain.local
-Define SENSE_SERVER_2 qlikserver2.domain.local
-Define APACHE_SERVER qlikserver3.domain.local
-Define LOCAL_ADDR 172.16.16.102
-Define VIRTUAL_PROXY header
-Define VIRTUAL_PROXY_1 adfsapache
-Define BALANCER_NAME balancer
+	Define SENSE_SERVER_1 qlikserver1.domain.local
+	Define SENSE_SERVER_2 qlikserver2.domain.local
+	Define APACHE_SERVER qlikserver3.domain.local
+	Define LOCAL_ADDR 172.16.16.102
+	Define VIRTUAL_PROXY header
+	Define VIRTUAL_PROXY_1 adfsapache
+	Define BALANCER_NAME balancer
  
-<VirtualHost *:443>
+    <VirtualHost *:443>
 
     ServerAdmin name@qlik.com
     DocumentRoot "${SRVROOT}/htdocs"
