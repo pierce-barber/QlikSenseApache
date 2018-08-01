@@ -32,27 +32,6 @@ Note: This documentation is only to used to validate and test while using Apache
 
 http-vhosts.conf
 
-# Virtual Hosts
-#
-# Required modules: mod_log_config
-# If you want to maintain multiple domains/hostnames on your
-# machine you can setup VirtualHost containers for them. Most configurations
-# use only name-based virtual hosts so the server doesn't need to worry about
-# IP addresses. This is indicated by the asterisks in the directives below.
-#
-# Please see the documentation at
-# <URL:http://httpd.apache.org/docs/2.4/vhosts/>
-# for further details before you try to setup virtual hosts.
-#
-# You may use the command line option '-S' to verify your virtual host
-# configuration.
-#
-# Qlik Sense Reverse Proxy configuration for header authentication
-#
-# Qlik Sense test Header configuration:
-# - Create a new Virtual Proxy with Header authentication using a Static User Directory. EX: QVUSER as the Header name
-# - Add the Reverse Proxy FQDN/Server Name and IP address to whitelist of virtual proxy
-#
 #Put the IP Address OR FQDN/Server Name of Qlik Sense Server as SENSE_SERVER_1 and SENSE_SERVER_2. EX: qlikserver1.domain.local
 #Put the IP Address OR FQDN/Server Name of Reverse Proxy as LOCAL_ADDR. EX: 172.16.16.102
 #Put the FQDN/Server Name of Reverse Proxy as APACHE_SERVER. EX: qlikserver3.domain.local
