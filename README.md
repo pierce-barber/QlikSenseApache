@@ -1,4 +1,4 @@
-# Qlik Sense using Apache Web Server as a Load Balancer and Reverse Proxy with Sticky Session and WebSockets enabled
+# Qlik Sense using Apache Web Server as a Load Balancer and Reverse Proxy with Sticky Sessions and WebSockets enabled
 
 The items given have been tested to allow one Apache Web Server to act as a Load Balancer AND Reverse Proxy to Qlik Sense traffic. This includes the Apache componements for  Sticky / Persistent Sessions for the User Session, HTTPS/SSL, WebSocket upgrades from HTTP(S) and SAML (ADFS tested)/Header and Windows Authentication. 
 
