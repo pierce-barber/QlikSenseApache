@@ -5,7 +5,6 @@ The items given have been tested to allow one Apache Web Server to act as a Load
 Prerequisites:
 
 - Valid 3rd Party SSL certificates will be trusted by the Apache Web Server/Qlik Sense Server (Other: ADFS server) and are configured 
-
   - Note: Tested with all the certificates being created by the same Certificate Authority (CA - Tinycert.org) accompanied by the same Trusted Root across all servers.
   - Note 2: Tested Qlik Sense with a valid SSL certificate bound to the Proxy Service - How to: Change the certificate used by the Qlik Sense Proxy to a custom third party certificate (https://qliksupport.force.com/articles/000005458) / https://help.qlik.com/en-US/sense/April2018/Subsystems/ManagementConsole/Content/change-proxy-certificate.htm
   - Note 3: Tested using SHA256 certificates for SAML and verify that all certificates are configured correctly with the proper Cryptographic Providers - Error 500 - Internal server error in the Hub/QMC when connecting through SAML authentication (https://qliksupport.force.com/articles/000041680)
@@ -32,19 +31,21 @@ Note: This documentation is only to used to validate and test while using Apache
 
 http-vhosts.conf
 
-#Put the IP Address OR FQDN/Server Name of Qlik Sense Server as SENSE_SERVER_1 and SENSE_SERVER_2. EX: qlikserver1.domain.local
-#Put the IP Address OR FQDN/Server Name of Reverse Proxy as LOCAL_ADDR. EX: 172.16.16.102
-#Put the FQDN/Server Name of Reverse Proxy as APACHE_SERVER. EX: qlikserver3.domain.local
-#Put the Virtual Proxy prefix as VIRTUAL_PROXY - EX: header
-#Put the desired name for the Balancer configuration as BALANCER_NAME -EX: balancer
+- Put the IP Address OR FQDN/Server Name of the Qlik Sense Server as SENSE_SERVER_1 and SENSE_SERVER_2. EX: qlikserver1.domain.local
+- Put the IP Address OR FQDN/Server Name of the Reverse Proxy as LOCAL_ADDR. EX: 172.16.16.102
+- Put the FQDN/Server Name of the Reverse Proxy as APACHE_SERVER. EX: qlikserver3.domain.local
+- Put the FQDN/Server Name/URL of the Identity Provider (IdP) as IDP_ADDR. EX: dc1.domain.local
+- Put the Virtual Proxy prefix as VIRTUAL_PROXY - EX: header
+- Put the desired name for the Balancer confiuration as BALANCER_NAME -EX: balancer
 
-	Define SENSE_SERVER_1 qlikserver1.domain.local
-	Define SENSE_SERVER_2 qlikserver2.domain.local
-	Define APACHE_SERVER qlikserver3.domain.local
-	Define LOCAL_ADDR 172.16.16.102
-	Define VIRTUAL_PROXY header
-	Define VIRTUAL_PROXY_1 adfsapache
-	Define BALANCER_NAME balancer
+- Define SENSE_SERVER_1 qlikserver1.domain.local
+- Define SENSE_SERVER_2 qlikserver2.domain.local
+- Define APACHE_SERVER qlikserver3.domain.local
+- Define LOCAL_ADDR 172.16.16.102
+- Define VIRTUAL_PROXY adfsapache
+- Define VIRTUAL_PROXY_1 header
+- Define BALANCER_NAME balancer
+- Define IDP_ADDR dc1.domain.local
  
     <VirtualHost *:443>
 
