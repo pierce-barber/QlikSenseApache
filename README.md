@@ -1,4 +1,4 @@
-# Qlik Sense using Apache Web Server as a Load Balancer and Reverse Proxy with Sticky Sessions and WebSockets enabled
+# Qlik Sense using Apache Web Server as a Load Balancer and Reverse Proxy with Sticky sessions and Websockets enabled 
 
 The items given have been tested to allow one Apache Web Server to act as a Load Balancer AND Reverse Proxy to Qlik Sense traffic. This includes the Apache componements for  Sticky / Persistent Sessions for the User Session, HTTPS/SSL, WebSocket upgrades from HTTP(S) and SAML (ADFS tested)/Header and Windows Authentication. 
 
@@ -25,29 +25,29 @@ Example Environment:
   - Apache 2.4 (httpd-2.4.33-o110h-x64-vc14-r2)
   - HTTPS / SSL - SHA256 with "Microsoft Enhanced RSA and AES Cryptographic Provider" added Enabled / Active on Sense, ADFS and Apache.
 
-Note: This documentation is only to used to validate and test while using Apache as a Reverse Web Server and Load Balancer with HTTPS/SSL is enabled. This example is under the assumption there's an understanding of the environment and having the proper permissions to perform the actions shown. Accounts used are all Local Administrators and the servers are open, with nothing blocked and no other programs installed on them. Any other versions or configurations of any software may need other steps/options/settings/etc ... that are not documented here. ​Use this at your own discretion as Qlik does NOT support Apache/OpenSSL/ADFS in their installation/configuration or use.
+Note: This documentation is only to used to validate and test while using Apache as a Reverse Web Server and Load Balancer with HTTPS/SSL is enabled. This example is under the assumption there's an understanding of the environment and having the proper permissions to perform the actions shown. Accounts used are all Local Administrators and the servers are open, with nothing blocked and no other programs installed on them. Any other versions or configurations of any software may need other steps/options/settings/etc ... that are not documented here. Use this at your own discretion as Qlik does NOT support Apache/OpenSSL/ADFS in their installation/configuration or use.
 
 --
 
 http-vhosts.conf
 
-- Put the IP Address OR FQDN/Server Name of the Qlik Sense Server as SENSE_SERVER_1 and SENSE_SERVER_2. EX: qlikserver1.domain.local
-- Put the IP Address OR FQDN/Server Name of the Reverse Proxy as LOCAL_ADDR. EX: 172.16.16.102
-- Put the FQDN/Server Name of the Reverse Proxy as APACHE_SERVER. EX: qlikserver3.domain.local
-- Put the FQDN/Server Name/URL of the Identity Provider (IdP) as IDP_ADDR. EX: dc1.domain.local
-- Put the Virtual Proxy prefix as VIRTUAL_PROXY - EX: header
-- Put the desired name for the Balancer confiuration as BALANCER_NAME -EX: balancer
+	- Put the IP Address OR FQDN/Server Name of the Qlik Sense Server as SENSE_SERVER_1 and SENSE_SERVER_2. EX: qlikserver1.domain.local
+	- Put the IP Address OR FQDN/Server Name of the Reverse Proxy as LOCAL_ADDR. EX: 172.16.16.102
+	- Put the FQDN/Server Name of the Reverse Proxy as APACHE_SERVER. EX: qlikserver3.domain.local
+	- Put the FQDN/Server Name/URL of the Identity Provider (IdP) as IDP_ADDR. EX: dc1.domain.local
+	- Put the Virtual Proxy prefix as VIRTUAL_PROXY - EX: header
+	- Put the desired name for the Balancer confiuration as BALANCER_NAME -EX: balancer
 
-- Define SENSE_SERVER_1 qlikserver1.domain.local
-- Define SENSE_SERVER_2 qlikserver2.domain.local
-- Define APACHE_SERVER qlikserver3.domain.local
-- Define LOCAL_ADDR 172.16.16.102
-- Define VIRTUAL_PROXY adfsapache
-- Define VIRTUAL_PROXY_1 header
-- Define BALANCER_NAME balancer
-- Define IDP_ADDR dc1.domain.local
- 
-    <VirtualHost *:443>
+	- Define SENSE_SERVER_1 qlikserver1.domain.local
+	- Define SENSE_SERVER_2 qlikserver2.domain.local
+	- Define APACHE_SERVER qlikserver3.domain.local
+	- Define LOCAL_ADDR 172.16.16.102
+	- Define VIRTUAL_PROXY adfsapache
+	- Define VIRTUAL_PROXY_1 header
+	- Define BALANCER_NAME balancer
+	- Define IDP_ADDR dc1.domain.local
+	
+<VirtualHost *:443>
 
     ServerAdmin name@qlik.com
     DocumentRoot "${SRVROOT}/htdocs"
